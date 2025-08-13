@@ -1,5 +1,6 @@
 #include "mqtt_manager.h"
 #include "config.h"
+#include "buzzer.h"
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
@@ -19,6 +20,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
   if (String(topic) == "device/scan/request") {
     if (message == "start_scan") {
       publishSerialNumberDevice();
+    }
+  }
+  if (String(topic) == "device/ping") {
+    String deviceUid = getDeviceUid();
+    if (message == deviceUid) {
+      buzzerSuccess();
     }
   }
 }
@@ -44,6 +51,7 @@ void reconnectMQTT() {
     if (client.connect(mqttClientId, mqttUser, mqttPass)) {
       Serial.println("Terhubung ke MQTT!");
       client.subscribe("device/scan/request");
+      client.subscribe("device/ping");
     } else {
       Serial.print("Gagal, rc=");
       Serial.println(client.state());
@@ -53,13 +61,21 @@ void reconnectMQTT() {
 }
 
 void publishMQTT(const String &uid) {
-  String jsonPayload = "{\"uid\":\"" + uid + "\"}";
+  String jsonPayload = "{\"uid\":\"" + uid + "\",\"device_uid\":\"" + getDeviceUid() + "\"}";
   client.publish(mqttTopicPublish, jsonPayload.c_str());
 }
 
 void publishSerialNumberDevice() {
-  String mac = WiFi.macAddress();
-  mac.replace(":", "");
-  mac.toLowerCase();
-  client.publish("device/scan/response", mac.c_str());
+  String mac = getDeviceUid();
+
+  String ip = WiFi.localIP().toString();
+
+  // Gabungkan jadi format JSON misalnya
+  String payload = "{";
+  payload += "\"uid\":\"" + mac + "\",";
+  payload += "\"ip\":\"" + ip + "\"";
+  payload += "}";
+
+  client.publish("device/scan/response", payload.c_str());
 }
+

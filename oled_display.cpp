@@ -106,6 +106,40 @@ void showLoading(String message) {
   }
 }
 
+void showProgressBar(String labelText, int durationMillis) {
+  // Tentukan dimensi dan posisi bar
+  const int BAR_X = 27;
+  const int BAR_Y = 17;
+  const int BAR_WIDTH = 75;
+  const int BAR_HEIGHT = 10;
+  const int FILL_WIDTH_MAX = BAR_WIDTH - 4; // Lebar isian maksimal
+
+  // Hitung delay per langkah agar total durasi sesuai
+  int stepDelay = durationMillis / FILL_WIDTH_MAX;
+
+  // 1. Gambar elemen statis (yang tidak bergerak)
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextWrap(false);
+  
+  // Atur posisi teks di bawah bar
+  showCenteredText(labelText, 35, 1);
+
+  // Gambar bingkai luar progress bar
+  display.drawRect(BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT, SSD1306_WHITE);
+
+  // 2. Loop untuk animasi isian
+  for (int i = 0; i <= FILL_WIDTH_MAX; i++) {
+    // Gambar kotak isian, lebarnya adalah 'i'
+    display.fillRect(BAR_X + 2, BAR_Y + 2, i, BAR_HEIGHT - 4, SSD1306_WHITE);
+    display.display();
+    delay(stepDelay);
+  }
+  
+  // Tahan sejenak setelah selesai
+  delay(50); 
+}
+
 void updateDisplayMode() {
   displayMessage("SISTEM PRESENSI", "Tempelkan kartu", 1);
 }

@@ -42,27 +42,27 @@ void loop() {
   digitalWrite(BUZZER_PIN, LOW);
 
   if (WiFi.status() == WL_CONNECTED) {
-    showLoading("Memeriksa kartu");
+    showProgressBar("Memeriksa kartu", 500);
     auto res = checkRFID(uid);
 
     if (res.success) {
       if (res.registered) {
-        displayMessage("KARTU TERBACA", res.message);
+        displayMessage(res.title, res.message);
       } else {
-        displayMessage("KARTU TIDAK TERBACA", res.message);
+        displayMessage(res.title, res.message);
         // publish to MQTT when not registered
         publishMQTT(uid);
       }
       buzzerSuccess();
     } else {
       buzzerError();
-      displayMessage("Error", res.message);
+      displayMessage("ERROR", res.message);
     }
   } else {
     buzzerError();
     displayMessage("WiFi Putus", "Periksa koneksi!");
   }
 
-  delay(4000);
+  delay(2500);
   updateDisplayMode();
 }

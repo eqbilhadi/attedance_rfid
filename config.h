@@ -30,3 +30,12 @@ static const char* mqttTopicPublish = "alat/rfid";
 
 // API Endpoint
 static const char* apiEndpoint = "http://192.168.1.8:8000/api/check-rfid";
+
+// Device UID or Serial number of device
+inline String getDeviceUid() {
+  String mac = WiFi.macAddress();
+  mac.replace(":", "");
+  mac.toLowerCase();
+
+  return mac;
+}
