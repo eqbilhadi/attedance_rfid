@@ -5,6 +5,7 @@
 
 ApiResponse checkRFID(const String &uid) {
   ApiResponse r;
+  r.uid = uid;
   r.success = false;
   r.registered = false;
   r.message = "Unknown error";

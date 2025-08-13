@@ -31,6 +31,11 @@ static const char* mqttTopicPublish = "alat/rfid";
 // API Endpoint
 static const char* apiEndpoint = "http://192.168.1.8:8000/api/check-rfid";
 
+// Get time config
+static const char* ntpServer = "pool.ntp.org";
+static const long gmtOffset_sec = 7 * 3600; // WIB adalah UTC+7
+static const int daylightOffset_sec = 0;  
+
 // Device UID or Serial number of device
 inline String getDeviceUid() {
   String mac = WiFi.macAddress();
