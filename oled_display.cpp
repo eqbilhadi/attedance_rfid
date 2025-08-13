@@ -1,5 +1,6 @@
 #include "oled_display.h"
 #include "config.h"
+#include <time.h>
 
 TwoWire myWire = TwoWire(1);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &myWire, OLED_RESET);
@@ -107,39 +108,102 @@ void showLoading(String message) {
 }
 
 void showProgressBar(String labelText, int durationMillis) {
-  // Tentukan dimensi dan posisi bar
   const int BAR_X = 27;
   const int BAR_Y = 17;
   const int BAR_WIDTH = 75;
   const int BAR_HEIGHT = 10;
-  const int FILL_WIDTH_MAX = BAR_WIDTH - 4; // Lebar isian maksimal
-
-  // Hitung delay per langkah agar total durasi sesuai
+  const int FILL_WIDTH_MAX = BAR_WIDTH - 4; 
+  
   int stepDelay = durationMillis / FILL_WIDTH_MAX;
-
-  // 1. Gambar elemen statis (yang tidak bergerak)
+  
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextWrap(false);
   
-  // Atur posisi teks di bawah bar
   showCenteredText(labelText, 35, 1);
-
-  // Gambar bingkai luar progress bar
+  
   display.drawRect(BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT, SSD1306_WHITE);
-
-  // 2. Loop untuk animasi isian
+  
   for (int i = 0; i <= FILL_WIDTH_MAX; i++) {
-    // Gambar kotak isian, lebarnya adalah 'i'
     display.fillRect(BAR_X + 2, BAR_Y + 2, i, BAR_HEIGHT - 4, SSD1306_WHITE);
     display.display();
     delay(stepDelay);
   }
   
-  // Tahan sejenak setelah selesai
   delay(50); 
 }
 
-void updateDisplayMode() {
-  displayMessage("SISTEM PRESENSI", "Tempelkan kartu", 1);
+void drawWaitingAnimation(const String& label, int progress) {
+  progress = constrain(progress, 0, 100);
+
+  const int BAR_X = 14;
+  const int BAR_Y = 26;
+  const int BAR_WIDTH = 100;
+  const int BAR_HEIGHT = 12;
+  const int FILL_WIDTH_MAX = BAR_WIDTH - 4;
+
+  int barFillWidth = map(progress, 0, 100, 0, FILL_WIDTH_MAX);
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+
+  showCenteredText(label, 0, 1);
+  display.drawLine(0, 10, 128, 10, SSD1306_WHITE);
+
+  display.drawRect(BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT, SSD1306_WHITE);
+
+  display.fillRect(BAR_X + 2, BAR_Y + 2, barFillWidth, BAR_HEIGHT - 4, SSD1306_WHITE);
+
+  String percentageText = String(progress) + "%";
+  showCenteredText(percentageText, 47, 1);
+
+  display.display();
+}
+
+String getFormattedTime() {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    return "HH:MM:SS";
+  }
+  char timeStringBuff[9];
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%H:%M:%S", &timeinfo);
+  return String(timeStringBuff);
+}
+
+String getFormattedDate() {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    return "DD-MM-YYYY";
+  }
+  char dateStringBuff[11];
+  strftime(dateStringBuff, sizeof(dateStringBuff), "%d-%m-%Y", &timeinfo);
+  return String(dateStringBuff);
+}
+
+void updateDisplayMode(const String& dateStr, const String& timeStr) {
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE);
+
+  showCenteredText("SISTEM PRESENSI", 0, 1);
+  display.drawLine(0, 10, 128, 10, SSD1306_WHITE);
+  
+  showCenteredText("Tempelkan kartu", 20, 1);
+  
+  showCenteredText(timeStr, 35, 2);
+  showCenteredText(dateStr, 57, 1);
+
+  display.display();
+}
+
+void handleIdleScreen() {
+  static unsigned long lastTimeUpdate = 0;
+  const int timeUpdateInterval = 1000;
+
+  if (millis() - lastTimeUpdate > timeUpdateInterval) {
+    lastTimeUpdate = millis();
+
+    String date = getFormattedDate();
+    String time = getFormattedTime();
+    updateDisplayMode(date, time);
+  }
 }
