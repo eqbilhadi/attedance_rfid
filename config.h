@@ -26,7 +26,10 @@ static const char* mqttTopicPublish = "alat/rfid";
 #define RST_PIN 22
 
 // === Buzzer ===
-#define BUZZER_PIN 15
+#define BUZZER_PIN 2
+
+// === LED_LAMP ===
+#define LED_GREEN 15
 
 // API Endpoint
 static const char* apiEndpoint = "http://192.168.1.8:8000/api/check-rfid";
