@@ -20,3 +20,10 @@ void buzzerError() {
   delay(500);
   digitalWrite(BUZZER_PIN, LOW);
 }
+
+void onLedGreen() {
+  digitalWrite(LED_GREEN, HIGH);  // LED ON
+  delay(1000);
+  digitalWrite(LED_GREEN, LOW);  // LED OFF
+  delay(1000);
+}
