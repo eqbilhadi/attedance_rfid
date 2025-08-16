@@ -5,42 +5,19 @@
 #include "wifi_manager.h"
 #include "mqtt_manager.h"
 #include "api_client.h"
+#include "api_task_manager.h"
 
 const int API_TIMEOUT_MS = 8000;
-const int ANIMATION_DURATION_MS = 3000;
-TaskHandle_t apiTaskHandle = NULL;
+const int ANIMATION_DURATION_MS = 4000;
 unsigned long checkStartTime = 0;
 bool isCheckingRFID = false; 
-
-QueueHandle_t apiResultQueue;
-
-void apiCheckTask(void *parameter) {
-  char* uidFromParam = (char*)parameter;
-  String uid(uidFromParam);
-
-  Serial.print("Memulai API task di background untuk UID: ");
-  Serial.println(uid);
-  
-  ApiResponse result = checkRFID(uid);
-  
-  if (xQueueSend(apiResultQueue, &result, (TickType_t)0) != pdPASS) {
-    Serial.println("Gagal mengirim hasil ke queue!");
-  }
-
-  Serial.println("API task selesai, hasil dikirim ke queue.");
-  vTaskDelete(NULL); 
-}
 
 void setup() {
   Serial.begin(115200);
   pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
   
-  apiResultQueue = xQueueCreate(1, sizeof(ApiResponse));
-
-  if (apiResultQueue == NULL) {
-    Serial.println("Gagal membuat queue!");
-    while(1);
-  }
+  setupApiTask();
 
   initOLED();
   initBuzzer();
@@ -81,7 +58,7 @@ void loop() {
   if (isCheckingRFID) {
     ApiResponse receivedResult;
     
-    if (xQueueReceive(apiResultQueue, &receivedResult, (TickType_t)0) == pdPASS) {
+    if (getApiResult(receivedResult)) {
       isCheckingRFID = false; 
 
       drawWaitingAnimation("MEMERIKSA", 100);
@@ -90,6 +67,7 @@ void loop() {
       if (receivedResult.success) {
         buzzerSuccess();
         displayMessage(receivedResult.title, receivedResult.message);
+        onLedGreen();
         if (!receivedResult.registered) {
           publishMQTT(receivedResult.uid); 
         }
@@ -105,7 +83,7 @@ void loop() {
     unsigned long elapsedTime = millis() - checkStartTime;
     if (elapsedTime > API_TIMEOUT_MS) {
       Serial.println("API Timeout!");
-      vTaskDelete(apiTaskHandle);
+      stopApiCheckTask();
       isCheckingRFID = false;
 
       buzzerError();
@@ -121,7 +99,7 @@ void loop() {
     delay(50);
   } 
   else {
-    if (!isMqttConnected()) reconnectMQTT();
+    if (!isMqttConnected()) tryReconnectMQTT();
     mqttLoop();
     handleIdleScreen();
     String uid = readCardUID();
@@ -136,14 +114,7 @@ void loop() {
         static char uidBuffer[33]; 
         uid.toCharArray(uidBuffer, sizeof(uidBuffer));
         
-        xTaskCreate(
-          apiCheckTask,
-          "APICheckTask",
-          8192,            
-          (void*)uidBuffer, 
-          1,
-          &apiTaskHandle
-        );
+        startApiCheckTask(uid);
       } else {
         buzzerError();
         displayMessage("WiFi Putus", "Periksa koneksi!");
