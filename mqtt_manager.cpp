@@ -60,6 +60,26 @@ void reconnectMQTT() {
   }
 }
 
+static unsigned long lastMqttReconnectAttempt = 0;
+void tryReconnectMQTT() {
+  if (!client.connected()) {
+    unsigned long now = millis();
+    // Coba hubungkan ulang hanya setiap 5 detik
+    if (now - lastMqttReconnectAttempt > 5000) {
+      lastMqttReconnectAttempt = now;
+      Serial.print("Mencoba menghubungkan ke MQTT...");
+      if (client.connect(mqttClientId, mqttUser, mqttPass)) {
+        Serial.println("Terhubung ke MQTT!");
+        client.subscribe("device/scan/request");
+        client.subscribe("device/ping");
+      } else {
+        Serial.print("Gagal, rc=");
+        Serial.println(client.state());
+      }
+    }
+  }
+}
+
 void publishMQTT(const String &uid) {
   String jsonPayload = "{\"uid\":\"" + uid + "\",\"device_uid\":\"" + getDeviceUid() + "\"}";
   client.publish(mqttTopicPublish, jsonPayload.c_str());
