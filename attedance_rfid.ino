@@ -65,12 +65,12 @@ void loop() {
       delay(200);
 
       if (receivedResult.success) {
-        buzzerSuccess();
-        displayMessage(receivedResult.title, receivedResult.message);
-        onLedGreen();
         if (!receivedResult.registered) {
           publishMQTT(receivedResult.uid); 
         }
+        buzzerSuccess();
+        displayMessage(receivedResult.title, receivedResult.message);
+        onLedGreen();
       } else {
         buzzerError();
         displayMessage("ERROR", receivedResult.message);
