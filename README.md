@@ -22,8 +22,8 @@ Sistem ini menggunakan ESP32 sebagai mikrokontroler utama untuk membaca kartu RF
 |----------|--------|-------------------------|
 | VCC      | Power  | ke rail merah (+)       |
 | GND      | Ground | ke rail biru (-)        |
-| SCL      | Clock  | GPIO 5 / D4             |
-| SDA      | Data   | GPIO 4 / D5             |
+| SCL      | Clock  | GPIO 5 / D5             |
+| SDA      | Data   | GPIO 4 / D4             |
 
 #### 📡 RFID RC522 (SPI) ke ESP32
 
@@ -41,9 +41,15 @@ Sistem ini menggunakan ESP32 sebagai mikrokontroler utama untuk membaca kartu RF
 
 | Buzzer Pin | Fungsi | ESP32 Pin / Breadboard |
 |------------|--------|-------------------------|
-| + (VCC)    | Power  | GPIO 15 / D15           |
+| + (VCC)    | Power  | GPIO 2 / D2             |
 | - (GND)    | Ground | ke rail biru (-)        |
 
+#### 🔦 LED Light ke ESP32
+
+| Buzzer Pin | Fungsi | ESP32 Pin / Breadboard |
+|------------|--------|-------------------------|
+| + (VCC)    | Power  | GPIO 15 / D15           |
+| - (GND)    | Ground | ke rail biru (-)        |
 ---
 
 ## 🧰 Jalur Power dan Ground pada Breadboard

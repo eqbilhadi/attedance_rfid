@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Konfigurasi ESP32</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1b1e;
+            --card-color: #25262c;
+            --primary-color: #9c7cff;
+            --secondary-color: #7048e8;
+            --text-color: #f1f3f5;
+            --subtle-text-color: #adb5bd;
+            --border-color: #373A40;
+            --input-bg-color: #1a1b1e;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-color);
+            padding: 35px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 1.8em;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h3 {
+            color: var(--text-color);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+             margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--subtle-text-color);
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(156, 124, 255, 0.2), inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .section .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 20px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(112, 72, 232, 0.3);
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(112, 72, 232, 0.4);
+        }
+        
+        input[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(112, 72, 232, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Atur Konfigurasi Alat Presensi</h2>
+        <form action="/save" method="get">
+            <div class="section">
+                <h3>Koneksi WiFi</h3>
+                <div class="input-group">
+                    <label for="ssid">Nama WiFi (SSID)</label>
+                    <input type="text" id="ssid" name="ssid" placeholder="Contoh: MyHomeWiFi">
+                </div>
+                <div class="input-group">
+                    <label for="pass">Password WiFi</label>
+                    <input type="password" id="pass" name="pass" placeholder="Masukkan password">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Server MQTT</h3>
+                 <div class="input-group">
+                    <label for="mqtt_server">MQTT Server</label>
+                    <input type="text" id="mqtt_server" name="mqtt_server" placeholder="Contoh: broker.hivemq.com">
+                </div>
+                 <div class="input-group">
+                    <label for="mqtt_port">MQTT Port</label>
+                    <input type="text" id="mqtt_port" name="mqtt_port" placeholder="Contoh: 1883">
+                </div>
+                 <div class="input-group">
+                    <label for="mqtt_user">MQTT Username</label>
+                    <input type="text" id="mqtt_user" name="mqtt_user" placeholder="Masukkan MQTT username">
+                </div>
+                 <div class="input-group">
+                    <label for="mqtt_pass">MQTT Password</label>
+                    <input type="password" id="mqtt_pass" name="mqtt_pass" placeholder="Masukkan MQTT password">
+                </div>
+                 <div class="input-group">
+                    <label for="mqtt_client_id">MQTT Client ID</label>
+                    <input type="text" id="mqtt_client_id" name="mqtt_client_id" placeholder="Contoh: alat-01">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Endpoint API</h3>
+                <div class="input-group">
+                    <label for="api_url">API URL</label>
+                    <input type="text" id="api_url" name="api_url" placeholder="Contoh: https://api.server.com/data">
+                </div>
+            </div>
+
+            <input type="submit" value="Simpan & Restart">
+        </form>
+    </div>
+</body>
+</html>

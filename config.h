@@ -7,7 +7,7 @@ static const char* ssid = "Billy Aufa_EXT";
 static const char* password = "Samawa7371";
 
 // === MQTT Settings ===
-static const char* mqttServer = "6f7e4be549454cf493675cf1b528d102.s1.eu.hivemq.cloud";
+static const char* mqttServer = "83b4c34e6ccb4b439d1fa46c5ec905b2.s1.eu.hivemq.cloud";
 static const int mqttPort = 8883;
 static const char* mqttUser = "esp32_user";
 static const char* mqttPass = "Esp32_password";
@@ -32,7 +32,7 @@ static const char* mqttTopicPublish = "alat/rfid";
 #define LED_GREEN 15
 
 // API Endpoint
-static const char* apiEndpoint = "http://192.168.1.8:8000/api/check-rfid";
+static const char* apiEndpoint = "http://192.168.1.6:8000/api/check-rfid";
 
 // Get time config
 static const char* ntpServer = "pool.ntp.org";
