@@ -12,7 +12,7 @@ ApiResponse checkRFID(const String &uid) {
   r.title = "ERROR";
 
   HTTPClient http;
-  http.begin(apiEndpoint);
+  http.begin(api_url);
   http.addHeader("Content-Type", "application/json");
 
   String payload = "{\"uid\":\"" + uid + "\",\"device_uid\":\"" + getDeviceUid() + "\"}";

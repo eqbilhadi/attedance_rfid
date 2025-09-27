@@ -207,3 +207,4 @@ void handleIdleScreen() {
     updateDisplayMode(date, time);
   }
 }
+

@@ -2,3 +2,4 @@
 
 void connectWiFi();
 bool WiFiConnected();
+bool connectWiFiWithTimeout();

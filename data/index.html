@@ -136,11 +136,11 @@
                 <h3>Koneksi WiFi</h3>
                 <div class="input-group">
                     <label for="ssid">Nama WiFi (SSID)</label>
-                    <input type="text" id="ssid" name="ssid" placeholder="Contoh: MyHomeWiFi">
+                    <input type="text" id="ssid" name="ssid" placeholder="Contoh: MyHomeWiFi" required maxlength="31">
                 </div>
                 <div class="input-group">
                     <label for="pass">Password WiFi</label>
-                    <input type="password" id="pass" name="pass" placeholder="Masukkan password">
+                    <input type="password" id="pass" name="pass" placeholder="Masukkan password" required maxlength="63">
                 </div>
             </div>
 
@@ -148,23 +148,23 @@
                 <h3>Server MQTT</h3>
                  <div class="input-group">
                     <label for="mqtt_server">MQTT Server</label>
-                    <input type="text" id="mqtt_server" name="mqtt_server" placeholder="Contoh: broker.hivemq.com">
+                    <input type="text" id="mqtt_server" name="mqtt_server" placeholder="Contoh: broker.hivemq.com" required maxlength="99">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_port">MQTT Port</label>
-                    <input type="text" id="mqtt_port" name="mqtt_port" placeholder="Contoh: 1883">
+                    <input type="text" id="mqtt_port" name="mqtt_port" placeholder="Contoh: 1883" required maxlength="5">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_user">MQTT Username</label>
-                    <input type="text" id="mqtt_user" name="mqtt_user" placeholder="Masukkan MQTT username">
+                    <input type="text" id="mqtt_user" name="mqtt_user" placeholder="Masukkan MQTT username" required maxlength="31">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_pass">MQTT Password</label>
-                    <input type="password" id="mqtt_pass" name="mqtt_pass" placeholder="Masukkan MQTT password">
+                    <input type="password" id="mqtt_pass" name="mqtt_pass" placeholder="Masukkan MQTT password" required maxlength="31">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_client_id">MQTT Client ID</label>
-                    <input type="text" id="mqtt_client_id" name="mqtt_client_id" placeholder="Contoh: alat-01">
+                    <input type="text" id="mqtt_client_id" name="mqtt_client_id" placeholder="Contoh: alat-01" required maxlength="31">
                 </div>
             </div>
 
@@ -172,7 +172,7 @@
                 <h3>Endpoint API</h3>
                 <div class="input-group">
                     <label for="api_url">API URL</label>
-                    <input type="text" id="api_url" name="api_url" placeholder="Contoh: https://api.server.com/data">
+                    <input type="text" id="api_url" name="api_url" placeholder="Contoh: https://api.server.com/data" required maxlength="127">
                 </div>
             </div>
 

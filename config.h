@@ -2,17 +2,24 @@
 
 #include <WiFi.h>
 
-// === WiFi Settings ===
-static const char* ssid = "Billy Aufa_EXT";
-static const char* password = "Samawa7371";
+// === WiFi Settings (bisa diubah runtime) ===
+extern char wifi_ssid[32];
+extern char wifi_pass[64];
 
-// === MQTT Settings ===
-static const char* mqttServer = "83b4c34e6ccb4b439d1fa46c5ec905b2.s1.eu.hivemq.cloud";
-static const int mqttPort = 8883;
-static const char* mqttUser = "esp32_user";
-static const char* mqttPass = "Esp32_password";
-static const char* mqttClientId = "alat-rfid-01";
-static const char* mqttTopicPublish = "alat/rfid";
+// === MQTT Settings (bisa diubah runtime) ===
+extern char mqtt_server[100];
+extern char mqtt_port[6];
+extern char mqtt_user[32];
+extern char mqtt_pass[32];
+extern char mqtt_client_id[32];
+
+// API Endpoint (bisa diubah runtime)
+extern char api_url[128];
+
+// Get time config
+static const char* ntpServer = "pool.ntp.org";
+static const long gmtOffset_sec = 7 * 3600; // WIB adalah UTC+7
+static const int daylightOffset_sec = 0;  
 
 // === OLED ===
 #define SCREEN_WIDTH 128
@@ -30,14 +37,6 @@ static const char* mqttTopicPublish = "alat/rfid";
 
 // === LED_LAMP ===
 #define LED_GREEN 15
-
-// API Endpoint
-static const char* apiEndpoint = "http://192.168.1.6:8000/api/check-rfid";
-
-// Get time config
-static const char* ntpServer = "pool.ntp.org";
-static const long gmtOffset_sec = 7 * 3600; // WIB adalah UTC+7
-static const int daylightOffset_sec = 0;  
 
 // Device UID or Serial number of device
 inline String getDeviceUid() {

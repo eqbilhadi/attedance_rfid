@@ -3,6 +3,7 @@
 #include "buzzer.h"
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include "oled_display.h"
 
 static WiFiClientSecure secureClient;
 static PubSubClient client(secureClient);
@@ -32,7 +33,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setupMQTT() {
   secureClient.setInsecure(); // development only
-  client.setServer(mqttServer, mqttPort);
+  client.setServer(mqtt_server, atoi(mqtt_port));
   client.setCallback(callback);
   reconnectMQTT();
 }
@@ -46,19 +47,36 @@ bool isMqttConnected() {
 }
 
 void reconnectMQTT() {
+  int attempts = 0;
+  
   while (!client.connected()) {
-    Serial.print("Menghubungkan ke MQTT...");
-    if (client.connect(mqttClientId, mqttUser, mqttPass)) {
-      Serial.println("Terhubung ke MQTT!");
+    String loadingDots = "";
+    int dotCount = (attempts % 3) + 1;
+    for (int i = 0; i < dotCount; i++) {
+      loadingDots += ".";
+    }
+
+    displayMessage("MQTT", "Menghubungkan\n" + loadingDots, 1);
+
+    Serial.print("Menghubungkan ke MQTT ");
+    Serial.print(loadingDots);
+
+    // Coba koneksi MQTT
+    if (client.connect(mqtt_client_id, mqtt_user, mqtt_pass)) {
+      Serial.println("\nTerhubung ke MQTT!");
+      displayMessage("MQTT", "Terhubung!");
       client.subscribe("device/scan/request");
       client.subscribe("device/ping");
+      delay(2500);
     } else {
-      Serial.print("Gagal, rc=");
+      Serial.print("\nGagal, rc=");
       Serial.println(client.state());
-      delay(5000);
+      attempts++;
+      delay(500);
     }
   }
 }
+
 
 static unsigned long lastMqttReconnectAttempt = 0;
 void tryReconnectMQTT() {
@@ -68,7 +86,7 @@ void tryReconnectMQTT() {
     if (now - lastMqttReconnectAttempt > 5000) {
       lastMqttReconnectAttempt = now;
       Serial.print("Mencoba menghubungkan ke MQTT...");
-      if (client.connect(mqttClientId, mqttUser, mqttPass)) {
+      if (client.connect(mqtt_client_id, mqtt_user, mqtt_pass)) {
         Serial.println("Terhubung ke MQTT!");
         client.subscribe("device/scan/request");
         client.subscribe("device/ping");
@@ -82,7 +100,7 @@ void tryReconnectMQTT() {
 
 void publishMQTT(const String &uid) {
   String jsonPayload = "{\"uid\":\"" + uid + "\",\"device_uid\":\"" + getDeviceUid() + "\"}";
-  client.publish(mqttTopicPublish, jsonPayload.c_str());
+  client.publish("alat/rfid", jsonPayload.c_str());
 }
 
 void publishSerialNumberDevice() {

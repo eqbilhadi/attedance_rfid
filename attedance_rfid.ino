@@ -6,6 +6,7 @@
 #include "mqtt_manager.h"
 #include "api_client.h"
 #include "api_task_manager.h"
+#include "access_points.h"
 
 const int API_TIMEOUT_MS = 8000;
 const int ANIMATION_DURATION_MS = 4000;
@@ -23,34 +24,55 @@ void setup() {
   initBuzzer();
   initRFID();
 
-  displayMessage("WiFi", "Menghubungkan...");
-  connectWiFi();
+  displayMessage("MEMULAI", "Memulai Alat");
 
-  displayMessage("WAKTU", "Sinkronisasi...");
+  if (loadConfig()) {
+    displayMessage("KONFIGURASI", String("File Konfigurasi ditemukan\nWiFi: ") + wifi_ssid);
+  } else {
+    displayMessage("KONFIGURASI", "File Konfigurasi tidak ditemukan");
+    startAPMode();
+  }
+  
+  if (!connectWiFiWithTimeout()) {
+    startAPMode();
+  };
+
+  displayMessage("WAKTU", "Sinkronisasi Waktu\n...");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   struct tm timeinfo;
   int retry = 0;
   
   while (!getLocalTime(&timeinfo) || timeinfo.tm_year < 100) {
-    Serial.println("Menunggu sinkronisasi waktu...");
+    String loadingDots = "";
+    int dotCount = (retry % 3) + 1;  // looping 1 -> 3 titik
+    for (int i = 0; i < dotCount; i++) {
+      loadingDots += ".";
+    }
+
+    displayMessage("WAKTU", "Sinkronisasi Waktu\n" + loadingDots, 1);
+
+    Serial.print("Menunggu sinkronisasi waktu ");
+    Serial.println(loadingDots);
+
     delay(500);
     retry++;
-    if (retry > 20) { 
+    
+    if (retry > 20) {
       Serial.println("Gagal mendapatkan waktu dari server NTP");
       displayMessage("ERROR", "Gagal Sinkronisasi Waktu");
-      delay(3000);
-      break; 
+      delay(2500);
+      break;
     }
   }
 
+  // Kalau sukses
   if (retry <= 20) {
-    Serial.println("Sinkronisasi waktu berhasil.");
+    Serial.println("Waktu berhasil disinkronkan");
+    displayMessage("WAKTU", "Sinkronisasi Berhasil!");
+    delay(2500);
   }
 
-  displayMessage("WiFi Terhubung", WiFi.localIP().toString());
-  delay(2000);
-  
   setupMQTT();
 }
 
