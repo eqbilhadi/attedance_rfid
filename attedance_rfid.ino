@@ -17,63 +17,71 @@ void setup() {
   Serial.begin(115200);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
-  
-  setupApiTask();
 
+  setupApiTask();
   initOLED();
   initBuzzer();
   initRFID();
 
-  displayMessage("MEMULAI", "Memulai Alat");
+  displayMessage("SISTEM PRESENSI", "Memuat...", 1);
+  delay(2000);
+
+  StatusType wifiStatus = STATUS_PENDING;
+  StatusType timeStatus = STATUS_PENDING;
+  StatusType mqttStatus = STATUS_PENDING;
+
+  drawStatusScreen(wifiStatus, timeStatus, mqttStatus);
+  delay(500);
 
   if (loadConfig()) {
-    displayMessage("KONFIGURASI", String("File Konfigurasi ditemukan\nWiFi: ") + wifi_ssid);
+    if (connectWiFiWithTimeout()) {
+      wifiStatus = STATUS_SUCCESS;
+    } else {
+      wifiStatus = STATUS_FAILED;
+    }
   } else {
-    displayMessage("KONFIGURASI", "File Konfigurasi tidak ditemukan");
+    wifiStatus = STATUS_FAILED;
+  }
+  drawStatusScreen(wifiStatus, timeStatus, mqttStatus);
+  delay(1000);
+
+  if (wifiStatus == STATUS_FAILED) {
+    displayMessage("WIFI GAGAL", "Masuk ke mode AP");
     startAPMode();
   }
-  
-  if (!connectWiFiWithTimeout()) {
-    startAPMode();
-  };
 
-  displayMessage("WAKTU", "Sinkronisasi Waktu\n...");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
   struct tm timeinfo;
   int retry = 0;
-  
-  while (!getLocalTime(&timeinfo) || timeinfo.tm_year < 100) {
-    String loadingDots = "";
-    int dotCount = (retry % 3) + 1;  // looping 1 -> 3 titik
-    for (int i = 0; i < dotCount; i++) {
-      loadingDots += ".";
-    }
-
-    displayMessage("WAKTU", "Sinkronisasi Waktu\n" + loadingDots, 1);
-
-    Serial.print("Menunggu sinkronisasi waktu ");
-    Serial.println(loadingDots);
-
-    delay(500);
+  while (!getLocalTime(&timeinfo, 5000) || timeinfo.tm_year < 100) {
     retry++;
-    
-    if (retry > 20) {
-      Serial.println("Gagal mendapatkan waktu dari server NTP");
-      displayMessage("ERROR", "Gagal Sinkronisasi Waktu");
-      delay(2500);
-      break;
+    if (retry > 10) {
+      break; 
     }
+    delay(500);
   }
 
-  // Kalau sukses
-  if (retry <= 20) {
+  if (retry <= 10) {
+    timeStatus = STATUS_SUCCESS;
     Serial.println("Waktu berhasil disinkronkan");
-    displayMessage("WAKTU", "Sinkronisasi Berhasil!");
-    delay(2500);
+  } else {
+    timeStatus = STATUS_FAILED;
+    Serial.println("Gagal sinkronisasi waktu");
   }
+  drawStatusScreen(wifiStatus, timeStatus, mqttStatus);
+  delay(1000);
 
-  setupMQTT();
+  if (reconnectMQTT()) {
+    mqttStatus = STATUS_SUCCESS;
+  } else {
+    mqttStatus = STATUS_FAILED;
+  }
+  drawStatusScreen(wifiStatus, timeStatus, mqttStatus);
+  delay(2500); 
+
+  Serial.println("Setup Selesai. Masuk ke loop utama.");
+  display.clearDisplay();
+  display.display();
 }
 
 void loop() {

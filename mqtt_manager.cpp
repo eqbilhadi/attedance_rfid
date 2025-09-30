@@ -46,35 +46,42 @@ bool isMqttConnected() {
   return client.connected();
 }
 
-void reconnectMQTT() {
-  int attempts = 0;
-  
-  while (!client.connected()) {
-    String loadingDots = "";
-    int dotCount = (attempts % 3) + 1;
-    for (int i = 0; i < dotCount; i++) {
-      loadingDots += ".";
+bool reconnectMQTT() {
+    secureClient.setInsecure();
+    client.setServer(mqtt_server, atoi(mqtt_port));
+    client.setCallback(callback);
+
+    Serial.println("===================================");
+    Serial.print("Mencoba terhubung ke MQTT Broker...");
+
+    int attempts = 0;
+    const int maxAttempts = 5;
+
+    while (!client.connected() && attempts < maxAttempts) {
+        Serial.print("\nPercobaan ke-");
+        Serial.print(attempts + 1);
+        Serial.print("... ");
+
+        if (client.connect(mqtt_client_id, mqtt_user, mqtt_pass)) {
+            Serial.println("OK!");
+            Serial.println("Terhubung ke MQTT Broker.");
+            
+            client.subscribe("device/scan/request");
+            client.subscribe("device/ping");
+            
+            Serial.println("===================================");
+            return true;
+        } else {
+            Serial.print("Gagal, status client = ");
+            Serial.print(client.state());
+            delay(2000); 
+        }
+        attempts++;
     }
 
-    displayMessage("MQTT", "Menghubungkan\n" + loadingDots, 1);
-
-    Serial.print("Menghubungkan ke MQTT ");
-    Serial.print(loadingDots);
-
-    // Coba koneksi MQTT
-    if (client.connect(mqtt_client_id, mqtt_user, mqtt_pass)) {
-      Serial.println("\nTerhubung ke MQTT!");
-      displayMessage("MQTT", "Terhubung!");
-      client.subscribe("device/scan/request");
-      client.subscribe("device/ping");
-      delay(2500);
-    } else {
-      Serial.print("\nGagal, rc=");
-      Serial.println(client.state());
-      attempts++;
-      delay(500);
-    }
-  }
+    Serial.println("\nGagal terhubung ke MQTT Broker setelah beberapa kali percobaan.");
+    Serial.println("===================================");
+    return false;
 }
 
 
@@ -82,7 +89,6 @@ static unsigned long lastMqttReconnectAttempt = 0;
 void tryReconnectMQTT() {
   if (!client.connected()) {
     unsigned long now = millis();
-    // Coba hubungkan ulang hanya setiap 5 detik
     if (now - lastMqttReconnectAttempt > 5000) {
       lastMqttReconnectAttempt = now;
       Serial.print("Mencoba menghubungkan ke MQTT...");
@@ -108,7 +114,6 @@ void publishSerialNumberDevice() {
 
   String ip = WiFi.localIP().toString();
 
-  // Gabungkan jadi format JSON misalnya
   String payload = "{";
   payload += "\"uid\":\"" + mac + "\",";
   payload += "\"ip\":\"" + ip + "\"";

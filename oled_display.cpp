@@ -187,9 +187,9 @@ void updateDisplayMode(const String& dateStr, const String& timeStr) {
   showCenteredText("SISTEM PRESENSI", 0, 1);
   display.drawLine(0, 10, 128, 10, SSD1306_WHITE);
   
-  showCenteredText("Tempelkan kartu", 20, 1);
+  showCenteredText("Tempelkan kartu", 16, 1);
   
-  showCenteredText(timeStr, 35, 2);
+  showCenteredText(timeStr, 33, 2);
   showCenteredText(dateStr, 57, 1);
 
   display.display();
@@ -204,7 +204,92 @@ void handleIdleScreen() {
 
     String date = getFormattedDate();
     String time = getFormattedTime();
+
     updateDisplayMode(date, time);
   }
+}
+
+// Bitmap untuk ikon centang (success) dan silang (failed)
+// Anda bisa membuat sendiri atau menggunakan ini
+const unsigned char PROGMEM icon_checkmark_bits[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x30, 0x00, 0x60, 0x80, 0xc0, 
+  0xc1, 0x80, 0x63, 0x00, 0x36, 0x00, 0x1c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+const unsigned char PROGMEM icon_cross_bits[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xc0, 0x61, 0x80, 0x33, 0x00, 0x1e, 0x00, 
+  0x0c, 0x00, 0x1e, 0x00, 0x33, 0x00, 0x61, 0x80, 0xc0, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+const unsigned char PROGMEM image_clock_quarters_bits[] = {
+  0x07, 0xc0, 0x19, 0x30, 0x21, 0x08, 0x40, 0x04, 0x41, 0x04, 0x81, 0x02, 0x81, 0x02, 0xe1, 0x0e, 
+  0x80, 0x82, 0x80, 0x42, 0x40, 0x04, 0x40, 0x04, 0x21, 0x08, 0x19, 0x30, 0x07, 0xc0
+};
+const unsigned char PROGMEM image_network_www_bits[] = {
+  0x03, 0xc0, 0x0d, 0xb0, 0x32, 0x4c, 0x24, 0x24, 0x44, 0x22, 0x7f, 0xfe, 0x88, 0x11, 0x88, 0x11, 
+  0x88, 0x11, 0x88, 0x11, 0x7f, 0xfe, 0x44, 0x22, 0x24, 0x24, 0x32, 0x4c, 0x0d, 0xb0, 0x03, 0xc0
+};
+const unsigned char PROGMEM image_wifi_full_bits[] = {
+  0x01, 0xf0, 0x00, 0x07, 0xfc, 0x00, 0x1e, 0x0f, 0x00, 0x39, 0xf3, 0x80, 0x77, 0xfd, 0xc0, 0xef, 
+  0x1e, 0xe0, 0x5c, 0xe7, 0x40, 0x3b, 0xfb, 0x80, 0x17, 0x1d, 0x00, 0x0e, 0xee, 0x00, 0x05, 0xf4, 
+  0x00, 0x03, 0xb8, 0x00, 0x01, 0x50, 0x00, 0x00, 0xe0, 0x00, 0x00, 0x40, 0x00
+};
+/**
+ * @brief Fungsi pembantu untuk menggambar satu baris status.
+ * * @param y Posisi Y untuk baris ini
+ * @param icon_bits Bitmap untuk ikon utama (WiFi, jam, dll.)
+ * @param text Teks status yang akan ditampilkan
+ * @param status Status saat ini (PENDING, SUCCESS, FAILED)
+ */
+void drawStatusLine(int x, int y, const unsigned char* icon_bits, int icon_w, int icon_h, String text, StatusType status) {
+    // Gambar ikon utama di kiri
+    display.drawBitmap(x, y, icon_bits, icon_w, icon_h, 1);
+    
+    // Tentukan teks dan ikon status di kanan
+    String statusText = "";
+    const unsigned char* statusIcon = nullptr;
+
+    switch(status) {
+        case STATUS_PENDING:
+            statusText = text + "...";
+            break;
+        case STATUS_SUCCESS:
+            statusText = "Terhubung";
+            statusIcon = icon_checkmark_bits;
+            break;
+        case STATUS_FAILED:
+            statusText = "Gagal";
+            statusIcon = icon_cross_bits;
+            break;
+    }
+
+    display.setTextSize(1);
+    display.setCursor(36, y + 4); // Sesuaikan posisi vertikal teks
+    display.print(statusText);
+
+    // Gambar ikon status (centang/silang) jika ada
+    if (statusIcon != nullptr) {
+        display.drawBitmap(105, y, statusIcon, 15, 15, 1);
+    }
+}
+
+/**
+ * @brief Fungsi utama untuk menggambar seluruh layar status.
+ * * @param wifiStatus Status koneksi WiFi
+ * @param timeStatus Status sinkronisasi waktu
+ * @param mqttStatus Status koneksi MQTT
+ */
+void drawStatusScreen(StatusType wifiStatus, StatusType timeStatus, StatusType mqttStatus) {
+    display.clearDisplay();
+    display.setTextColor(SSD1306_WHITE);
+
+    // Baris 1: WiFi
+    drawStatusLine(13, 4, image_wifi_full_bits, 19, 15, "WiFi", wifiStatus);
+    
+    // Baris 2: Waktu (NTP)
+    drawStatusLine(15, 23, image_clock_quarters_bits, 15, 15, "Waktu", timeStatus);
+    
+    // Baris 3: MQTT
+    drawStatusLine(14, 42, image_network_www_bits, 16, 16, "Server", mqttStatus);
+
+    display.display();
 }
 

@@ -2,18 +2,18 @@
 
 #include <WiFi.h>
 
-// === WiFi Settings (bisa diubah runtime) ===
+// === WiFi Settings ===
 extern char wifi_ssid[32];
 extern char wifi_pass[64];
 
-// === MQTT Settings (bisa diubah runtime) ===
+// === MQTT Settings ===
 extern char mqtt_server[100];
 extern char mqtt_port[6];
 extern char mqtt_user[32];
 extern char mqtt_pass[32];
 extern char mqtt_client_id[32];
 
-// API Endpoint (bisa diubah runtime)
+// API Endpoint
 extern char api_url[128];
 
 // Get time config
