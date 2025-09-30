@@ -23,14 +23,12 @@ bool loadConfig() {
       return false;
     }
 
-    // ✅ Tambahan: tampilkan isi file JSON sebelum di-parse
     Serial.println("=== Isi /config.json ===");
     while (configFile.available()) {
       Serial.write(configFile.read());
     }
     Serial.println("\n========================");
     
-    // Balikkan pointer file ke awal supaya bisa di-parse
     configFile.seek(0, SeekSet);
 
     StaticJsonDocument<512> doc;
@@ -43,7 +41,6 @@ bool loadConfig() {
       return false;
     }
 
-    // Salin dari JSON ke variabel global (MENGGUNAKAN strlcpy)
     strlcpy(wifi_ssid, doc["wifi_ssid"] | "", sizeof(wifi_ssid));
     strlcpy(wifi_pass, doc["wifi_pass"] | "", sizeof(wifi_pass));
     strlcpy(mqtt_server, doc["mqtt_server"] | "", sizeof(mqtt_server));
@@ -53,7 +50,6 @@ bool loadConfig() {
     strlcpy(mqtt_client_id, doc["mqtt_client_id"] | "", sizeof(mqtt_client_id));
     strlcpy(api_url, doc["api_url"] | "", sizeof(api_url));
 
-    // Print hasil setelah di-load
     Serial.println("=== Konfigurasi Dimuat dari /config.json ===");
     Serial.print("WiFi SSID     : "); Serial.println(wifi_ssid);
     Serial.print("WiFi Pass     : "); Serial.println(wifi_pass);
@@ -76,7 +72,6 @@ bool loadConfig() {
 bool saveConfig() {
   StaticJsonDocument<512> doc;
 
-  // Ambil nilai dari form
   String ssid = webServer.arg("ssid");
   String pass = webServer.arg("pass");
   String mqttServ = webServer.arg("mqtt_server");
@@ -86,7 +81,6 @@ bool saveConfig() {
   String mqttClient = webServer.arg("mqtt_client_id");
   String apiUrl = webServer.arg("api_url");
 
-  // Cetak ke Serial Monitor
   Serial.println("=== Data Konfigurasi Diterima ===");
   Serial.println("WiFi SSID     : " + ssid);
   Serial.println("WiFi Pass     : " + pass);
@@ -98,7 +92,6 @@ bool saveConfig() {
   Serial.println("API URL       : " + apiUrl);
   Serial.println("================================");
 
-  // Masukkan ke JSON
   doc["wifi_ssid"] = ssid;
   doc["wifi_pass"] = pass;
   doc["mqtt_server"] = mqttServ;
@@ -108,7 +101,6 @@ bool saveConfig() {
   doc["mqtt_client_id"] = mqttClient;
   doc["api_url"] = apiUrl;
 
-  // Simpan ke SPIFFS
   File configFile = SPIFFS.open("/config.json", "w");
   if (!configFile) {
     Serial.println("Gagal membuat config");
@@ -125,9 +117,9 @@ bool saveConfig() {
 
 void startAPMode() {
   display.clearDisplay();
-  display.setCursor(0,0);
+  display.setCursor(0, 0);
   Serial.println("Mode Konfigurasi");
-  
+
   WiFi.softAP(ap_ssid);
   IPAddress apIP = WiFi.softAPIP();
   Serial.print("AP IP: ");
@@ -139,8 +131,24 @@ void startAPMode() {
 
   webServer.on("/", HTTP_GET, []() {
     File file = SPIFFS.open("/index.html", "r");
-    webServer.streamFile(file, "text/html");
+    if (!file) {
+      webServer.send(404, "text/plain", "File index.html tidak ditemukan");
+      return;
+    }
+
+    String page = file.readString();
     file.close();
+
+    page.replace("%WIFI_SSID%", String(wifi_ssid));
+    page.replace("%WIFI_PASS%", String(wifi_pass));
+    page.replace("%MQTT_SERVER%", String(mqtt_server));
+    page.replace("%MQTT_PORT%", String(mqtt_port));
+    page.replace("%MQTT_USER%", String(mqtt_user));
+    page.replace("%MQTT_PASS%", String(mqtt_pass));
+    page.replace("%MQTT_CLIENT_ID%", String(mqtt_client_id));
+    page.replace("%API_URL%", String(api_url));
+
+    webServer.send(200, "text/html", page);
   });
 
   webServer.on("/save", HTTP_GET, []() {
