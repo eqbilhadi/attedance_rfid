@@ -6,6 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --bg-color: #1a1b1e;
@@ -17,7 +18,6 @@
             --border-color: #373A40;
             --input-bg-color: #1a1b1e;
         }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
@@ -29,7 +29,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .container {
             width: 100%;
             max-width: 480px;
@@ -39,7 +38,6 @@
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
         h2 {
             text-align: center;
             margin-top: 0;
@@ -50,7 +48,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
         h3 {
             color: var(--text-color);
             padding-bottom: 8px;
@@ -59,15 +56,12 @@
             font-weight: 600;
             border-bottom: 1px solid var(--border-color);
         }
-
         .section {
             margin-bottom: 30px;
         }
-        
         .input-group {
-             margin-bottom: 20px;
+            margin-bottom: 20px;
         }
-        
         label {
             display: block;
             margin-bottom: 8px;
@@ -75,7 +69,6 @@
             font-weight: 500;
             font-size: 0.9em;
         }
-
         input[type="text"],
         input[type="password"] {
             width: 100%;
@@ -89,18 +82,18 @@
             transition: all 0.2s ease-in-out;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
-
+        input[type="password"] {
+            padding-right: 50px;
+        }
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(156, 124, 255, 0.2), inset 0 1px 2px rgba(0,0,0,0.1);
         }
-        
         .section .input-group:last-child {
             margin-bottom: 0;
         }
-
         input[type="submit"] {
             width: 100%;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
@@ -115,17 +108,34 @@
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 15px rgba(112, 72, 232, 0.3);
         }
-
         input[type="submit"]:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(112, 72, 232, 0.4);
         }
-        
         input[type="submit"]:active {
             transform: translateY(0);
             box-shadow: 0 2px 10px rgba(112, 72, 232, 0.3);
         }
-
+        .password-wrapper {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--subtle-text-color);
+            padding: 0;
+            line-height: 0;
+        }
+       
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -136,48 +146,81 @@
                 <h3>Koneksi WiFi</h3>
                 <div class="input-group">
                     <label for="ssid">Nama WiFi (SSID)</label>
-                    <input type="text" id="ssid" name="ssid" placeholder="Contoh: MyHomeWiFi" required maxlength="31">
+                    <input type="text" id="ssid" name="ssid" placeholder="Contoh: MyHomeWiFi" required maxlength="31" value="%WIFI_SSID%">
                 </div>
                 <div class="input-group">
                     <label for="pass">Password WiFi</label>
-                    <input type="password" id="pass" name="pass" placeholder="Masukkan password" required maxlength="63">
+                    <div class="password-wrapper">
+                        <input type="password" id="pass" name="pass" placeholder="Masukkan password" required maxlength="63" value="%WIFI_PASS%">
+                        <button type="button" class="toggle-password" data-target="pass">
+                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                            <svg class="icon-eye-slash" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-
             <div class="section">
                 <h3>Server MQTT</h3>
                  <div class="input-group">
                     <label for="mqtt_server">MQTT Server</label>
-                    <input type="text" id="mqtt_server" name="mqtt_server" placeholder="Contoh: broker.hivemq.com" required maxlength="99">
+                    <input type="text" id="mqtt_server" name="mqtt_server" placeholder="Contoh: broker.hivemq.com" required maxlength="99" value="%MQTT_SERVER%">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_port">MQTT Port</label>
-                    <input type="text" id="mqtt_port" name="mqtt_port" placeholder="Contoh: 1883" required maxlength="5">
+                    <input type="text" id="mqtt_port" name="mqtt_port" placeholder="Contoh: 1883" required maxlength="5" value="%MQTT_PORT%">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_user">MQTT Username</label>
-                    <input type="text" id="mqtt_user" name="mqtt_user" placeholder="Masukkan MQTT username" required maxlength="31">
+                    <input type="text" id="mqtt_user" name="mqtt_user" placeholder="Masukkan MQTT username" required maxlength="31" value="%MQTT_USER%">
                 </div>
                  <div class="input-group">
                     <label for="mqtt_pass">MQTT Password</label>
-                    <input type="password" id="mqtt_pass" name="mqtt_pass" placeholder="Masukkan MQTT password" required maxlength="31">
+                    <div class="password-wrapper">
+                        <input type="password" id="mqtt_pass" name="mqtt_pass" placeholder="Masukkan MQTT password" required maxlength="31" value="%MQTT_PASS%">
+                        <button type="button" class="toggle-password" data-target="mqtt_pass">
+                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                            <svg class="icon-eye-slash" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                        </button>
+                    </div>
                 </div>
                  <div class="input-group">
                     <label for="mqtt_client_id">MQTT Client ID</label>
-                    <input type="text" id="mqtt_client_id" name="mqtt_client_id" placeholder="Contoh: alat-01" required maxlength="31">
+                    <input type="text" id="mqtt_client_id" name="mqtt_client_id" placeholder="Contoh: alat-01" required maxlength="31" value="%MQTT_CLIENT_ID%">
                 </div>
             </div>
-
             <div class="section">
                 <h3>Endpoint API</h3>
                 <div class="input-group">
                     <label for="api_url">API URL</label>
-                    <input type="text" id="api_url" name="api_url" placeholder="Contoh: https://api.server.com/data" required maxlength="127">
+                    <input type="text" id="api_url" name="api_url" placeholder="Contoh: https://api.server.com/data" required maxlength="127" value="%API_URL%">
                 </div>
             </div>
-
             <input type="submit" value="Simpan & Restart">
         </form>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const passwordInput = document.getElementById(targetId);
+                    
+                    const iconEye = this.querySelector('.icon-eye');
+                    const iconEyeSlash = this.querySelector('.icon-eye-slash');
+
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        iconEye.style.display = 'none';
+                        iconEyeSlash.style.display = 'block';
+                    } else {
+                        passwordInput.type = 'password';
+                        iconEye.style.display = 'block';
+                        iconEyeSlash.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
